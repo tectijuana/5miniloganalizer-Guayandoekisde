@@ -9,11 +9,13 @@ No.Control: 23210592
 
 Hora: 5:00 p.m.
 
+Profesor: Rene Solis Reyes
+
 
 ## Implementación de un Mini Cloud Log Analyzer en ARM64
 
 **Modalidad:** Individual
-**Entorno de trabajo:** AWS Ubuntu ARM64 + GitHub Classroom
+**Entorno de trabajo:** AWS Ubuntu ARM64 + GitHub Classroom (Este programa fue hecho simulado con qemu-aarch64 en una arquitectura x86_64)
 **Lenguaje:** ARM64 Assembly (GNU Assembler) + Bash + GNU Make
 
 ---
@@ -24,10 +26,13 @@ Los sistemas modernos de cómputo en la nube generan continuamente registros (*l
 
 En esta práctica se desarrollará un módulo simplificado de análisis de logs, implementado en **ARM64 Assembly**, inspirado en tareas reales de monitoreo utilizadas en sistemas cloud, observabilidad y administración de infraestructura.
 
-El programa procesará códigos de estado HTTP suministrados mediante entrada estándar (stdin):
+El programa procesara códigos de estado HTTP y detectara el primer evento critico 503 indicando en que línea del log.txt se encuentra:
 
 ```bash id="y1gcmc"
 cat logs.txt | ./analyzer
+```
+```
+El primer codigo 503 se encuentra en la linea x
 ```
 
 ---
@@ -56,58 +61,9 @@ Estos temas se alinean con contenidos clásicos de flujo de control, herramienta
 
 ---
 
-## Material proporcionado
-
-Se entregará un repositorio preconfigurado que contiene:
-
-* plantilla base en ARM64
-* archivo `Makefile`
-* script Bash de ejecución
-* archivo de datos (`logs.txt`)
-* pruebas iniciales
-* secciones marcadas con `TODO`
-
-El estudiante deberá completar la lógica correspondiente.
-
----
-
-## Variantes de la práctica
-
-### Variante A
-
-Contabilizar:
-
-* respuestas exitosas (2xx)
-* errores del cliente (4xx)
-* errores del servidor (5xx)
-
----
-
-### Variante B
-
-Determinar el código de estado más frecuente.
-
----
-
 ### Variante C
 
 Detectar el primer evento crítico (503).
-
----
-
-### Variante D
-
-Detectar tres errores consecutivos.
-
----
-
-### Variante E
-
-Calcular índice de salud:
-
-```text id="2u4vvx"
-Health Score = 100 - (errores × 10)
-```
 
 ---
 
@@ -117,58 +73,44 @@ Health Score = 100 - (errores × 10)
 make
 ```
 
+<p align="center">
+<<img src="https://github.com/user-attachments/assets/92d5cfaa-6e55-43a7-8d88-a2d30b6a402f"/>
+</p>
+
+## Ejemplo de ejecucion
+```
+make run
+```
+<p align="center">
+  <img width="557" height="176" alt="image" src="https://github.com/user-attachments/assets/d70d3ee3-f9b4-41bc-bf55-9f706603506a" />
+</p>
+
+```
+make test
+```
+<p align="center">
+<img width="614" height="363" alt="image" src="https://github.com/user-attachments/assets/d948c4b0-c2c0-4782-9c09-a4f91c041639" />
+</p>
+
+
 ---
 
-## Ejecución
+## Ejecución en el logs_C
 
 ```bash id="gcqlf2"
 cat logs.txt | ./analyzer
 ```
+<img width="1077" height="144" alt="image" src="https://github.com/user-attachments/assets/841c39a3-ee54-42b4-af08-fe912fc74dbb" />
+
+---
+## Ejecucion en un log aleatorio de 1000 eventos
+
+```
+cat logs_random.txt | ./analyzer
+```
+<img width="1152" height="173" alt="image" src="https://github.com/user-attachments/assets/5846137b-b32f-4f63-b2bc-fc15cec2b5b4" />
 
 ---
 
-## Entregables
 
-Cada estudiante deberá entregar en su repositorio:
-
-* archivo fuente ARM64 funcional
-* solución implementada
-* README explicando diseño y lógica utilizada
-* evidencia de ejecución
-* commits realizados en GitHub Classroom
-
----
-
-## Criterios de evaluación
-
-| Criterio                    | Ponderación |
-| --------------------------- | ----------- |
-| Compilación correcta        | 20%         |
-| Correctitud de la solución  | 35%         |
-| Uso adecuado de ARM64       | 25%         |
-| Documentación y comentarios | 10%         |
-| Evidencia de pruebas        | 10%         |
-
----
-
-## Restricciones
-
-No está permitido:
-
-* resolver la lógica en C
-* resolver la lógica en Python
-* modificar la variante asignada
-* omitir el uso de ARM64 Assembly
-
----
-
-## Competencia a desarrollar
-
-Comprender cómo un problema de procesamiento de datos es implementado a nivel máquina mediante instrucciones ARM64.
-
----
-
-## Nota
-
-Aunque este problema puede resolverse fácilmente en lenguajes de alto nivel, el propósito de la práctica es implementar **cómo lo resolvería la arquitectura**, no únicamente obtener el resultado.
 
