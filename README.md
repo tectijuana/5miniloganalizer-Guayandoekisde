@@ -1,3 +1,7 @@
+<img width="1588" height="104" alt="Logo" src="https://github.com/user-attachments/assets/faf54fc3-5829-42d5-bf8d-5d2df5d2a671" />
+
+
+
 # Práctica 4.2
 Autor: Gomez Cuevas Carlos
 
