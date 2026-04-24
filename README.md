@@ -112,8 +112,7 @@ cat logs_random.txt | ./analyzer
 
 ---
 ## Demo de ejeucion
-Archivo de grabacion: 
-- 
+Link de la demo: https://asciinema.org/a/hzorB7IgSmZKPRvi
 
 
 
