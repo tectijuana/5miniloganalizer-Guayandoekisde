@@ -1,7 +1,0 @@
-# Salidas esperadas de la versión base (variante A) para cada dataset.
-# Formato: archivo => (2xx, 4xx, 5xx)
-logs_A.txt => (4, 3, 3)
-logs_B.txt => (2, 5, 3)
-logs_C.txt => (4, 1, 3)
-logs_D.txt => (3, 4, 2)
-logs_E.txt => (7, 2, 2)

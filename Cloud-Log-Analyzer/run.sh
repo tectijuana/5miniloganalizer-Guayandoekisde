@@ -11,10 +11,10 @@ fi
 
 if [[ $(uname -m) == "aarch64" ]]; then
   # Ejecución nativa en ARM64 (escenario esperado en AWS Ubuntu 24 ARM64).
-  cat data/logs_A.txt | ./analyzer
+  cat data/logs_C.txt | ./analyzer
 elif command -v qemu-aarch64 >/dev/null 2>&1; then
   # Ejecución emulada para quienes trabajan en host x86_64.
-  cat data/logs_A.txt | qemu-aarch64 ./analyzer
+  cat data/logs_C.txt | qemu-aarch64 -L /usr/aarch64-linux-gnu ./analyzer
 else
   echo "[ERROR] Este host no es ARM64 y no se encontró qemu-aarch64." >&2
   echo "        Ejecute esta práctica en AWS Ubuntu 24 ARM64." >&2

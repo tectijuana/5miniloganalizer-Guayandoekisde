@@ -1,29 +1,8 @@
-/*
-Autor: Equipo docente (base para estudiantes)
-Curso: Arquitectura de Computadoras / Ensamblador ARM64
-Práctica: Mini Cloud Log Analyzer (Bash + ARM64 + GNU Make)
-Fecha: 20 de abril de 2026
-Descripción: Lee códigos HTTP desde stdin (uno por línea), clasifica 2xx/4xx/5xx
-             y muestra un reporte en español usando únicamente syscalls Linux.
+/* Autor: Gomez Cuevas Carlos
+No.Control: 23210592
+Fecha:23/04/2026
 */
-
-/*
-PSEUDOCÓDIGO (guía didáctica)
-1) Inicializar contadores en 0: exitos_2xx, errores_4xx, errores_5xx.
-2) Mientras haya bytes por leer en stdin:
-   2.1) Leer un bloque con syscall read.
-   2.2) Recorrer byte por byte.
-   2.3) Si el byte es dígito, acumular numero_actual = numero_actual * 10 + dígito.
-   2.4) Si el byte es '\n', clasificar numero_actual y reiniciar acumulador.
-3) Si el flujo termina sin '\n' final y hay número pendiente, clasificarlo.
-4) Imprimir resultados en español con syscall write.
-5) Salir con código 0.
-
-TODO (extensión para estudiantes):
-- Agregar manejo de códigos no válidos y contarlos.
-- Implementar variantes B, C, D y E en ramas separadas.
-- Mostrar porcentaje de éxito respecto al total.
-*/
+// Codigo del analyzer en ARM64
 
 .equ SYS_read,   63
 .equ SYS_write,  64
@@ -38,23 +17,20 @@ num_buf:        .skip 32      // Buffer para imprimir enteros en texto
 
 .section .data
 msg_titulo:         .asciz "=== Mini Cloud Log Analyzer ===\n"
-msg_2xx:            .asciz "Éxitos 2xx: "
-msg_4xx:            .asciz "Errores 4xx: "
-msg_5xx:            .asciz "Errores 5xx: "
-msg_fin_linea:      .asciz "\n"
+msg_503_encontrado: .asciz "Se encontro el primer 503 en la linea: "
+msg_503_no:	    .asciz "No se encontro ningun 503\n"
+msg_fin_linea:	    .asciz "\n"
 
 .section .text
 .global _start
 
 _start:
-    // Contadores principales
-    mov x19, #0                  // exitos_2xx
-    mov x20, #0                  // errores_4xx
-    mov x21, #0                  // errores_5xx
-
     // Estado del parser
     mov x22, #0                  // numero_actual
     mov x23, #0                  // tiene_digitos (0/1)
+    mov x28, #0			 // encontrado_503 (0 = no, 1 = si)
+    mov x29, #0			 // contador_lineas
+    mov x18, #0			 // linea_503
 
 leer_bloque:
     // read(STDIN_FD, buffer, 4096)
@@ -104,7 +80,7 @@ procesar_byte:
 fin_numero:
     // Solo clasificar si efectivamente hubo al menos un dígito
     cbz x23, reiniciar_numero
-
+    add x29, x29, #1	// contar linea
     mov x0, x22
     bl clasificar_codigo
 
@@ -116,44 +92,34 @@ reiniciar_numero:
 fin_lectura:
     // EOF con número pendiente (sin '\n' final)
     cbz x23, imprimir_reporte
+
+    add x29, x29, #1	// ultima linea sin \n
     mov x0, x22
     bl clasificar_codigo
 
 imprimir_reporte:
-    // Encabezado
-    adrp x0, msg_titulo
-    add x0, x0, :lo12:msg_titulo
+    cmp x28, #1
+    b.eq encontrado
+
+no_encontrado:
+    adrp x0, msg_503_no
+    add x0, x0, :lo12:msg_503_no
+    bl write_cstr
+    b salida_ok
+
+encontrado:
+    adrp x0, msg_503_encontrado
+    add x0, x0, :lo12:msg_503_encontrado
     bl write_cstr
 
-    // "Éxitos 2xx: " + valor + "\n"
-    adrp x0, msg_2xx
-    add x0, x0, :lo12:msg_2xx
-    bl write_cstr
-    mov x0, x19
+    mov x0, x18		// imprimir numero de linea
     bl print_uint
+
     adrp x0, msg_fin_linea
     add x0, x0, :lo12:msg_fin_linea
     bl write_cstr
 
-    // "Errores 4xx: " + valor + "\n"
-    adrp x0, msg_4xx
-    add x0, x0, :lo12:msg_4xx
-    bl write_cstr
-    mov x0, x20
-    bl print_uint
-    adrp x0, msg_fin_linea
-    add x0, x0, :lo12:msg_fin_linea
-    bl write_cstr
-
-    // "Errores 5xx: " + valor + "\n"
-    adrp x0, msg_5xx
-    add x0, x0, :lo12:msg_5xx
-    bl write_cstr
-    mov x0, x21
-    bl print_uint
-    adrp x0, msg_fin_linea
-    add x0, x0, :lo12:msg_fin_linea
-    bl write_cstr
+    b salida_ok
 
 salida_ok:
     mov x0, #0
@@ -170,27 +136,15 @@ salida_error:
 // Incrementa el contador correspondiente: 2xx, 4xx o 5xx.
 // -----------------------------------------------------------------------------
 clasificar_codigo:
-    cmp x0, #200
-    b.lt clasificar_fin
-    cmp x0, #299
-    b.gt revisar_4xx
-    add x19, x19, #1
-    b clasificar_fin
+    cmp x28, #1
+    b.eq clasificar_fin	// si ya encontro, no hacer nada
 
-revisar_4xx:
-    cmp x0, #400
-    b.lt clasificar_fin
-    cmp x0, #499
-    b.gt revisar_5xx
-    add x20, x20, #1
-    b clasificar_fin
+    // Verificar si es 4xx
+    cmp x0, #503
+    b.ne clasificar_fin
 
-revisar_5xx:
-    cmp x0, #500
-    b.lt clasificar_fin
-    cmp x0, #599
-    b.gt clasificar_fin
-    add x21, x21, #1
+    mov x28, #1		// encontrado = true
+    mov x18, x29	// guardar numero de linea
 
 clasificar_fin:
     ret
