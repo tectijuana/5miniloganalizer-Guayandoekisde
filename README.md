@@ -111,6 +111,10 @@ cat logs_random.txt | ./analyzer
 <img width="1152" height="173" alt="image" src="https://github.com/user-attachments/assets/5846137b-b32f-4f63-b2bc-fc15cec2b5b4" />
 
 ---
+## Demo de ejeucion
+Archivo de grabacion: 
+- 
+
 
 
 
